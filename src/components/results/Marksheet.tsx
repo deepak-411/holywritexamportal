@@ -1,0 +1,153 @@
+
+"use client";
+
+import * as React from "react";
+import Logo from "@/components/Logo";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+type MarksheetProps = {
+    studentName: string;
+    rollNumber: string;
+    className: string;
+    section: string;
+    examTitle: string;
+    roboticsMarks: number;
+    codingMarks: number | string;
+    totalObtained: number;
+    totalMax: number;
+    isFinal: boolean;
+    remarks: string;
+};
+
+export default function Marksheet({
+    studentName,
+    rollNumber,
+    className,
+    section,
+    examTitle,
+    roboticsMarks,
+    codingMarks,
+    totalObtained,
+    totalMax,
+    isFinal,
+    remarks,
+}: MarksheetProps) {
+    const [currentDate, setCurrentDate] = React.useState("");
+
+    React.useEffect(() => {
+        setCurrentDate(new Date().toLocaleDateString());
+    }, []);
+
+    // Calculate percentage based on MCQ marks only
+    const percentage = roboticsMarks / 80 * 100;
+    const passStatus = percentage >= 40 ? "PASS" : "FAIL";
+
+    const getGrade = () => {
+        if (!isFinal) return '-';
+        if (percentage >= 90) return 'A1';
+        if (percentage >= 80) return 'A2';
+        if (percentage >= 70) return 'B1';
+        if (percentage >= 60) return 'B2';
+        if (percentage >= 50) return 'C1';
+        if (percentage >= 40) return 'C2';
+        return 'D';
+    };
+    
+    const grade = getGrade();
+
+  return (
+    <Card className="max-w-4xl mx-auto border-2 border-primary shadow-2xl print:shadow-none print:border-none bg-white text-black printable-content">
+        <CardContent className="p-8 md:p-12">
+            <header className="flex flex-col items-center justify-center text-center gap-4">
+                <div className="bg-white rounded-full">
+                    <Logo />
+                </div>
+                <div>
+                    <h1 className="font-headline text-3xl md:text-4xl font-bold text-primary whitespace-nowrap">
+                        Holy Writ High School and Junior College
+                    </h1>
+                    <p className="text-muted-foreground">Academic Session: 2024-2025</p>
+                </div>
+            </header>
+
+            <div className="my-8 text-center bg-primary text-primary-foreground py-2 rounded-md">
+                <h2 className="font-bold text-xl tracking-wider">{examTitle}</h2>
+            </div>
+
+            <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm mb-8">
+                <div><span className="font-semibold">Student's Name:</span> {studentName}</div>
+                <div><span className="font-semibold">Roll No:</span> {rollNumber}</div>
+                <div><span className="font-semibold">Class:</span> {className}</div>
+                <div><span className="font-semibold">Section:</span> {section}</div>
+            </div>
+
+            <Separator className="my-8"/>
+
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-[100px]">S.No.</TableHead>
+                        <TableHead>Subject</TableHead>
+                        <TableHead className="text-right">Max Marks</TableHead>
+                        <TableHead className="text-right">Marks Obtained</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow>
+                        <TableCell>1</TableCell>
+                        <TableCell>Robotics & AI (MCQ)</TableCell>
+                        <TableCell className="text-right">80</TableCell>
+                        <TableCell className="text-right">{roboticsMarks} / 80</TableCell>
+                    </TableRow>
+                     <TableRow>
+                        <TableCell>2</TableCell>
+                        <TableCell>Robotics & AI (Coding)</TableCell>
+                        <TableCell className="text-right">20</TableCell>
+                        <TableCell className="text-right font-bold">{codingMarks} / 20</TableCell>
+                    </TableRow>
+                </TableBody>
+                <TableFooter>
+                    <TableRow className="bg-white">
+                        <TableCell colSpan={2} className="font-bold">Total</TableCell>
+                        <TableCell className="text-right font-bold">{totalMax}</TableCell>
+                        <TableCell className="text-right font-bold">{totalObtained}</TableCell>
+                    </TableRow>
+                </TableFooter>
+            </Table>
+            
+            <div className="grid grid-cols-2 gap-8 mt-8">
+                 <div>
+                    {isFinal && (
+                        <>
+                            <p className="font-bold">Result: <span className="text-primary">{passStatus}</span></p>
+                            <p className="font-bold">Percentage: <span className="text-primary">{percentage.toFixed(2)}%</span></p>
+                            <p className="font-bold">Grade: <span className="text-primary">{grade}</span></p>
+                        </>
+                    )}
+                 </div>
+                 <div className="text-right">
+                    {currentDate && <p>Date: {currentDate}</p>}
+                 </div>
+            </div>
+
+            <div className="mt-8">
+                <h3 className="font-bold">Teacher’s Remarks:</h3>
+                <p className="text-sm text-muted-foreground italic border-t pt-2 mt-2">{remarks}</p>
+            </div>
+
+            <footer className="flex justify-between mt-24 pt-8 border-t">
+                <div className="text-center">
+                    <div className="h-12"></div>
+                    <p className="border-t border-dashed mt-2 pt-1 font-semibold">Vikas Dalal (Vice Principal)</p>
+                </div>
+                 <div className="text-center">
+                    <div className="h-12"></div>
+                    <p className="border-t border-dashed mt-2 pt-1 font-semibold">Subrata Kundu (Principal)</p>
+                </div>
+            </footer>
+        </CardContent>
+    </Card>
+  )
+}
