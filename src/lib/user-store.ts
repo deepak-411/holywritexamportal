@@ -22,7 +22,7 @@ const DEFAULT_USERS: User[] = [
   { name: 'kshitij gopal tapare', rollNumber: '16', class: '6', section: 'Daffodils' },
   { name: 'MANEET TALAMPALLI', rollNumber: '17', class: '6', section: 'Daffodils' },
   { name: 'Mishti Malviya', rollNumber: '19', class: '6', section: 'Daffodils' },
-  { name: 'nirved nilesh bhoir', rollNumber: '19', class: '6', section: 'Daffodils' }, // Duplicate Roll Number
+  { name: 'nirved nilesh bhoir', rollNumber: '19', class: '6', section: 'Daffodils' },
   { name: 'raj santosh gondhale', rollNumber: '22', class: '6', section: 'Daffodils' },
   { name: 'Reva.Borate', rollNumber: '24', class: '6', section: 'Daffodils' },
   { name: 'rudraunsh agawane', rollNumber: '25', class: '6', section: 'Daffodils' },
@@ -34,6 +34,9 @@ const DEFAULT_USERS: User[] = [
   { name: 'Suhas patro', rollNumber: '31', class: '6', section: 'Daffodils' },
   { name: 'Tanaswi Telange', rollNumber: '33', class: '6', section: 'Daffodils' },
   { name: 'Zahraa Al Friawi', rollNumber: '36', class: '6', section: 'Daffodils' },
+
+  // Class 7 A
+  { name: 'Rishita Singh', rollNumber: '18', class: '7', section: 'A' },
 
   // Class 7 Daffodils
   { name: 'Aadya Amit Wani', rollNumber: '01', class: '7', section: 'Daffodils' },
@@ -52,11 +55,10 @@ const DEFAULT_USERS: User[] = [
   { name: 'sai parkar', rollNumber: '20', class: '7', section: 'Daffodils' },
   { name: 'satyam kumar', rollNumber: '21', class: '7', section: 'Daffodils' },
   { name: 'Saumya chavan', rollNumber: '22', class: '7', section: 'Daffodils' },
+  { name: 'Soham Sonawane', rollNumber: '26', class: '7', section: 'Daffodils' },
   { name: 'Surabhi Parekh', rollNumber: '27', class: '7', section: 'Daffodils' },
   { name: 'Vihaan Dudani', rollNumber: '30', class: '7', section: 'Daffodils' },
-  { name: 'VRITIKA.ZENDE ', rollNumber: '31', class: '7', section: 'Daffodils' },
-  { name: 'Soham Sonawane', rollNumber: '26', class: '7', section: 'Daffodils' },
-  { name: 'Rishita Singh', rollNumber: '18', class: '7', section: 'A' }, // As provided
+  { name: 'VRITIKA.ZENDE', rollNumber: '31', class: '7', section: 'Daffodils' },
 
   // Class 7 Daisies
   { name: 'arnav parkar', rollNumber: '3', class: '7', section: 'Daisies' },
@@ -139,6 +141,8 @@ const DEFAULT_USERS: User[] = [
 // --- User Management ---
 
 export function getStoredUsers(): User[] {
+  // In a real app, this would merge localStorage with default users.
+  // For this project, we will just use the default list to ensure consistency.
   return DEFAULT_USERS;
 }
 
@@ -153,6 +157,7 @@ export function storeNewUser(user: User): boolean {
     // Note: This will not persist across reloads as we are not using localStorage anymore.
     // This is just for runtime for now.
     users.push(user);
+    // window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
     return true; // Indicate success
   }
   return false;
@@ -192,5 +197,3 @@ export function clearCurrentUser() {
         window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
     }
 }
-
-    
