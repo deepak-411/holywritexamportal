@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { BookCopy, Users } from "lucide-react";
 import Link from "next/link";
 import { getStoredUsers, type User } from "@/lib/user-store";
+import { getExamForStudent, getResultForStudent, type ExamResult } from "@/lib/exam-store";
 
 type GroupedStudents = {
   [className: string]: {
@@ -26,11 +27,18 @@ export default function FacultyDashboard() {
     if (!acc[className][section]) {
       acc[className][section] = [];
     }
-    // Sort by roll number, treating roll number as a number
     acc[className][section].push(user);
     acc[className][section].sort((a, b) => parseInt(a.rollNumber) - parseInt(b.rollNumber));
     return acc;
   }, {} as GroupedStudents);
+
+  const getStudentResult = (student: User): ExamResult | null => {
+    const exam = getExamForStudent(student.class, student.section);
+    if (exam) {
+      return getResultForStudent(student.rollNumber, exam.selectedSet);
+    }
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -93,8 +101,8 @@ export default function FacultyDashboard() {
                 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Student Directory</CardTitle>
-                    <CardDescription>Browse all registered students by class and section.</CardDescription>
+                    <CardTitle>Student Directory & Results</CardTitle>
+                    <CardDescription>Browse all registered students and their exam scores.</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Accordion type="single" collapsible className="w-full">
@@ -111,15 +119,22 @@ export default function FacultyDashboard() {
                                       <TableRow>
                                         <TableHead className="w-[100px]">Roll No.</TableHead>
                                         <TableHead>Student Name</TableHead>
+                                        <TableHead className="text-right">MCQ Score (/80)</TableHead>
+                                        <TableHead className="text-right">Coding Score (/20)</TableHead>
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                      {groupedStudents[className][section].map(student => (
-                                        <TableRow key={`${student.rollNumber}-${student.name}`}>
-                                          <TableCell className="font-medium">{student.rollNumber}</TableCell>
-                                          <TableCell>{student.name}</TableCell>
-                                        </TableRow>
-                                      ))}
+                                      {groupedStudents[className][section].map(student => {
+                                        const result = getStudentResult(student);
+                                        return (
+                                          <TableRow key={`${student.rollNumber}-${student.name}`}>
+                                            <TableCell className="font-medium">{student.rollNumber}</TableCell>
+                                            <TableCell>{student.name}</TableCell>
+                                            <TableCell className="text-right">{result ? `${result.robotics}` : 'N/A'}</TableCell>
+                                            <TableCell className="text-right font-medium">{result ? (result.coding === -1 ? 'Pending' : `${result.coding}`) : 'N/A'}</TableCell>
+                                          </TableRow>
+                                        )
+                                      })}
                                     </TableBody>
                                   </Table>
                                 </div>
@@ -137,5 +152,3 @@ export default function FacultyDashboard() {
     </div>
   )
 }
-
-    
