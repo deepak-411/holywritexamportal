@@ -37,10 +37,11 @@ export default function FacultyDashboard() {
   const getStudentResult = (student: User): ExamResult | null => {
     const studentResults = allResults[student.rollNumber];
     if (studentResults) {
-      // Return the first available result for the student
+      // Find a result that matches the student's exam set, if possible.
+      // This is a simplified logic. A more robust system would link students to specific exams.
       const examIds = Object.keys(studentResults);
       if (examIds.length > 0) {
-        return studentResults[examIds[0]];
+        return studentResults[examIds[0]]; // Return the first available result
       }
     }
     return null;
@@ -133,8 +134,10 @@ export default function FacultyDashboard() {
                                     <TableBody>
                                       {groupedStudents[className][section].map(student => {
                                         const result = getStudentResult(student);
+                                        // Create a more robust unique key
+                                        const uniqueKey = `${student.class}-${student.section}-${student.rollNumber}-${student.name}`;
                                         return (
-                                          <TableRow key={`${student.rollNumber}-${student.name}`}>
+                                          <TableRow key={uniqueKey}>
                                             <TableCell className="font-medium">{student.rollNumber}</TableCell>
                                             <TableCell>{student.name}</TableCell>
                                             <TableCell className="text-center">{result ? `${result.robotics}` : 'N/A'}</TableCell>

@@ -7,7 +7,7 @@ import { ArrowLeft, Printer, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { findUser } from "@/lib/user-store";
+import { findUser, type User } from "@/lib/user-store";
 import { getStoredResults, type ExamResult } from "@/lib/exam-store";
 
 
@@ -44,10 +44,13 @@ export default function ResultPage() {
         
         if (userForMarksheet) {
             const allResults = getStoredResults();
-            const studentResults = allResults[userForMarksheet.rollNumber];
+            // Construct a unique key for students with duplicate roll numbers
+            const uniqueStudentKeyForResults = `${userForMarksheet.rollNumber}-${userForMarksheet.class}-${userForMarksheet.section}`;
+            
+            // Try finding result with unique key first, then fall back to just roll number
+            let studentResults = allResults[uniqueStudentKeyForResults] || allResults[userForMarksheet.rollNumber];
             
             if (studentResults) {
-                // Find the first available result for the student
                 const availableExamIds = Object.keys(studentResults);
                 if (availableExamIds.length > 0) {
                     const firstExamId = availableExamIds[0];
@@ -69,7 +72,7 @@ export default function ResultPage() {
                     setError(`No exam result found for ${userForMarksheet.name} (Roll No: ${studentId}).`);
                 }
             } else {
-                 setError(`No result data found for Roll No: ${studentId}.`);
+                 setError(`No result data found for Roll No: ${studentId} in Class ${studentClass}-${studentSection}.`);
             }
         } else {
             setError(`A student with Roll No: ${studentId}, Class: ${studentClass}, Section: ${studentSection} could not be found.`);

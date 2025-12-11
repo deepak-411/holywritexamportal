@@ -22,7 +22,7 @@ const DEFAULT_USERS: User[] = [
   { name: 'kshitij gopal tapare', rollNumber: '16', class: '6', section: 'Daffodils' },
   { name: 'MANEET TALAMPALLI', rollNumber: '17', class: '6', section: 'Daffodils' },
   { name: 'Mishti Malviya', rollNumber: '19', class: '6', section: 'Daffodils' },
-  { name: 'nirved nilesh bhoir', rollNumber: '19', class: '6', section: 'Daffodils' }, // Duplicate Roll No.
+  { name: 'nirved nilesh bhoir', rollNumber: '19', class: '6', section: 'Daffodils' },
   { name: 'raj santosh gondhale', rollNumber: '22', class: '6', section: 'Daffodils' },
   { name: 'Reva.Borate', rollNumber: '24', class: '6', section: 'Daffodils' },
   { name: 'rudraunsh agawane', rollNumber: '25', class: '6', section: 'Daffodils' },
@@ -144,7 +144,7 @@ export function getStoredUsers(): User[] {
   if (typeof window !== 'undefined') {
     const stored = window.localStorage.getItem(USERS_STORAGE_KEY);
     // If local storage is empty, initialize with default users
-    if (!stored) {
+    if (!stored || stored === '[]') {
       window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(DEFAULT_USERS));
       return DEFAULT_USERS;
     }
@@ -153,8 +153,6 @@ export function getStoredUsers(): User[] {
       const parsedUsers = JSON.parse(stored);
       // A simple check to see if it's an array, could be more robust
       if(Array.isArray(parsedUsers)) {
-        // Here you could merge default and stored users if needed,
-        // but for now, we'll just return what's in storage.
         return parsedUsers;
       }
     } catch (e) {
@@ -182,6 +180,7 @@ export function storeNewUser(user: User): boolean {
 
 export function findUser(rollNumber: string, className: string, section: string): User | undefined {
     const users = getStoredUsers();
+    // Use find to get the first match. In case of duplicates, this will be the one found.
     return users.find(u => u.rollNumber === rollNumber && u.class === className && u.section === section);
 }
 
@@ -214,7 +213,5 @@ export function clearCurrentUser() {
         window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
     }
 }
-
-    
 
     

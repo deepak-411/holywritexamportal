@@ -1,3 +1,4 @@
+
 import ResultSearchForm from "@/components/results/ResultSearchForm";
 import Logo from "@/components/Logo";
 import {
@@ -33,3 +34,5 @@ export default function ResultSearchPage() {
     </div>
   );
 }
+
+    
