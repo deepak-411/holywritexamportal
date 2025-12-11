@@ -213,5 +213,3 @@ export function clearCurrentUser() {
         window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
     }
 }
-
-    

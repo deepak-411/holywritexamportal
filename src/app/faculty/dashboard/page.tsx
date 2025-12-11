@@ -18,29 +18,36 @@ type GroupedStudents = {
 
 export default function FacultyDashboard() {
   const [totalStudents, setTotalStudents] = useState(0);
-  const allUsers = getStoredUsers();
-  const allResults = getStoredResults();
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [allResults, setAllResults] = useState<{ [key: string]: any }>({});
+  const [groupedStudents, setGroupedStudents] = useState<GroupedStudents>({});
 
   useEffect(() => {
-    setTotalStudents(getStoredUsers().length);
+    const users = getStoredUsers();
+    const results = getStoredResults();
+    setAllUsers(users);
+    setAllResults(results);
+    setTotalStudents(users.length);
+
+    const grouped = users.reduce((acc, user) => {
+      const { class: className, section } = user;
+      if (!acc[className]) {
+        acc[className] = {};
+      }
+      if (!acc[className][section]) {
+        acc[className][section] = [];
+      }
+      acc[className][section].push(user);
+      // Sort by roll number, treating roll number as a number
+      acc[className][section].sort((a, b) => parseInt(a.rollNumber) - parseInt(b.rollNumber));
+      return acc;
+    }, {} as GroupedStudents);
+    setGroupedStudents(grouped);
   }, []);
 
-  const groupedStudents = allUsers.reduce((acc, user) => {
-    const { class: className, section } = user;
-    if (!acc[className]) {
-      acc[className] = {};
-    }
-    if (!acc[className][section]) {
-      acc[className][section] = [];
-    }
-    acc[className][section].push(user);
-    // Sort by roll number, treating roll number as a number
-    acc[className][section].sort((a, b) => parseInt(a.rollNumber) - parseInt(b.rollNumber));
-    return acc;
-  }, {} as GroupedStudents);
-
   const getStudentResult = (student: User): ExamResult | null => {
-    const studentResults = allResults[`${student.rollNumber}-${student.class}-${student.section}`] || allResults[student.rollNumber];
+    const uniqueStudentKey = `${student.rollNumber}-${student.class}-${student.section}`;
+    const studentResults = allResults[uniqueStudentKey] || allResults[student.rollNumber];
     if (studentResults) {
       const examIds = Object.keys(studentResults);
       if (examIds.length > 0) {
