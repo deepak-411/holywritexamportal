@@ -2,12 +2,35 @@
 'use client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookCopy } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { BookCopy, Users } from "lucide-react";
 import Link from "next/link";
-import { getStoredUsers } from "@/lib/user-store";
+import { getStoredUsers, type User } from "@/lib/user-store";
+
+type GroupedStudents = {
+  [className: string]: {
+    [section: string]: User[];
+  };
+};
 
 export default function FacultyDashboard() {
-  const totalStudents = getStoredUsers().length;
+  const allUsers = getStoredUsers();
+  const totalStudents = allUsers.length;
+
+  const groupedStudents = allUsers.reduce((acc, user) => {
+    const { class: className, section } = user;
+    if (!acc[className]) {
+      acc[className] = {};
+    }
+    if (!acc[className][section]) {
+      acc[className][section] = [];
+    }
+    // Sort by roll number, treating roll number as a number
+    acc[className][section].push(user);
+    acc[className][section].sort((a, b) => parseInt(a.rollNumber) - parseInt(b.rollNumber));
+    return acc;
+  }, {} as GroupedStudents);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -37,6 +60,7 @@ export default function FacultyDashboard() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+                            <Users className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{totalStudents}</div>
@@ -66,6 +90,48 @@ export default function FacultyDashboard() {
                         </CardContent>
                     </Card>
                 </div>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Student Directory</CardTitle>
+                    <CardDescription>Browse all registered students by class and section.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Accordion type="single" collapsible className="w-full">
+                      {Object.keys(groupedStudents).sort().map(className => (
+                        <AccordionItem key={className} value={`class-${className}`}>
+                          <AccordionTrigger className="text-lg font-bold">Class {className}</AccordionTrigger>
+                          <AccordionContent>
+                            {Object.keys(groupedStudents[className]).sort().map(section => (
+                              <div key={section} className="mb-6">
+                                <h4 className="font-headline text-xl font-semibold mb-2 text-primary">{section}</h4>
+                                <div className="border rounded-md">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead className="w-[100px]">Roll No.</TableHead>
+                                        <TableHead>Student Name</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {groupedStudents[className][section].map(student => (
+                                        <TableRow key={student.rollNumber}>
+                                          <TableCell className="font-medium">{student.rollNumber}</TableCell>
+                                          <TableCell>{student.name}</TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            ))}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </CardContent>
+                </Card>
+
             </div>
         </main>
     </div>
