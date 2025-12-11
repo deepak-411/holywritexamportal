@@ -18,7 +18,6 @@ type MarksheetProps = {
     totalObtained: number;
     totalMax: number;
     isFinal: boolean;
-    remarks: string;
 };
 
 export default function Marksheet({
@@ -32,7 +31,6 @@ export default function Marksheet({
     totalObtained,
     totalMax,
     isFinal,
-    remarks,
 }: MarksheetProps) {
     const [currentDate, setCurrentDate] = React.useState("");
 
@@ -40,12 +38,14 @@ export default function Marksheet({
         setCurrentDate(new Date().toLocaleDateString());
     }, []);
 
-    // Calculate percentage based on MCQ marks only
-    const percentage = roboticsMarks / 80 * 100;
+    // Calculate percentage based on total marks if final, otherwise just MCQ
+    const percentage = isFinal 
+        ? (totalObtained / totalMax) * 100 
+        : (roboticsMarks / 80) * 100;
+    
     const passStatus = percentage >= 40 ? "PASS" : "FAIL";
 
     const getGrade = () => {
-        if (!isFinal) return '-';
         if (percentage >= 90) return 'A1';
         if (percentage >= 80) return 'A2';
         if (percentage >= 70) return 'B1';
@@ -99,33 +99,31 @@ export default function Marksheet({
                         <TableCell>1</TableCell>
                         <TableCell>Robotics & AI (MCQ)</TableCell>
                         <TableCell className="text-right">80</TableCell>
-                        <TableCell className="text-right">{roboticsMarks} / 80</TableCell>
+                        <TableCell className="text-right">{roboticsMarks}</TableCell>
                     </TableRow>
                      <TableRow>
                         <TableCell>2</TableCell>
                         <TableCell>Robotics & AI (Coding)</TableCell>
                         <TableCell className="text-right">20</TableCell>
-                        <TableCell className="text-right font-bold">{codingMarks} / 20</TableCell>
+                        <TableCell className="text-right font-bold">{codingMarks}</TableCell>
                     </TableRow>
                 </TableBody>
-                <TableFooter>
-                    <TableRow className="bg-white">
-                        <TableCell colSpan={2} className="font-bold">Total</TableCell>
-                        <TableCell className="text-right font-bold">{totalMax}</TableCell>
-                        <TableCell className="text-right font-bold">{totalObtained}</TableCell>
-                    </TableRow>
-                </TableFooter>
+                {isFinal && (
+                    <TableFooter>
+                        <TableRow className="bg-white">
+                            <TableCell colSpan={2} className="font-bold">Total</TableCell>
+                            <TableCell className="text-right font-bold">{totalMax}</TableCell>
+                            <TableCell className="text-right font-bold">{totalObtained}</TableCell>
+                        </TableRow>
+                    </TableFooter>
+                )}
             </Table>
             
             <div className="grid grid-cols-2 gap-8 mt-8">
                  <div>
-                    {isFinal && (
-                        <>
-                            <p className="font-bold">Result: <span className="text-primary">{passStatus}</span></p>
-                            <p className="font-bold">Percentage: <span className="text-primary">{percentage.toFixed(2)}%</span></p>
-                            <p className="font-bold">Grade: <span className="text-primary">{grade}</span></p>
-                        </>
-                    )}
+                    <p className="font-bold">Result: <span className="text-primary">{passStatus}</span></p>
+                    <p className="font-bold">Percentage: <span className="text-primary">{percentage.toFixed(2)}%</span></p>
+                    <p className="font-bold">Grade: <span className="text-primary">{grade}</span></p>
                  </div>
                  <div className="text-right">
                     {currentDate && <p>Date: {currentDate}</p>}

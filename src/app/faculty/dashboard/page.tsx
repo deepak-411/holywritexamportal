@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BookCopy, Users } from "lucide-react";
+import { BookCopy, Users, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { getStoredUsers, type User } from "@/lib/user-store";
 import { getStoredExams, getStoredResults, type ExamResult } from "@/lib/exam-store";
@@ -29,6 +29,7 @@ export default function FacultyDashboard() {
       acc[className][section] = [];
     }
     acc[className][section].push(user);
+    // Sort by roll number, treating roll number as a number
     acc[className][section].sort((a, b) => parseInt(a.rollNumber) - parseInt(b.rollNumber));
     return acc;
   }, {} as GroupedStudents);
@@ -36,7 +37,14 @@ export default function FacultyDashboard() {
   const getStudentResult = (student: User): ExamResult | null => {
     const studentResults = allResults[student.rollNumber];
     if (studentResults) {
-      // Find the first available result for the student, as examId might vary
+      // Since a student can have results for multiple exams, we need to find the one relevant to their class.
+      const studentClassExams = getStoredExams().filter(e => e.selectedClass === student.class && e.selectedSection === student.section);
+      for(const exam of studentClassExams) {
+         if (studentResults[exam.selectedSet]) {
+             return studentResults[exam.selectedSet];
+         }
+      }
+      // If no specific class exam found, return the first available one as a fallback
       const examIds = Object.keys(studentResults);
       if (examIds.length > 0) {
         return studentResults[examIds[0]];
@@ -124,8 +132,9 @@ export default function FacultyDashboard() {
                                       <TableRow>
                                         <TableHead className="w-[100px]">Roll No.</TableHead>
                                         <TableHead>Student Name</TableHead>
-                                        <TableHead className="text-right">MCQ Score (/80)</TableHead>
-                                        <TableHead className="text-right">Coding Score (/20)</TableHead>
+                                        <TableHead className="text-center">MCQ Score (/80)</TableHead>
+                                        <TableHead className="text-center">Coding Score (/20)</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -135,8 +144,16 @@ export default function FacultyDashboard() {
                                           <TableRow key={`${student.rollNumber}-${student.name}`}>
                                             <TableCell className="font-medium">{student.rollNumber}</TableCell>
                                             <TableCell>{student.name}</TableCell>
-                                            <TableCell className="text-right">{result ? `${result.robotics}` : 'N/A'}</TableCell>
-                                            <TableCell className="text-right font-medium">{result ? (result.coding === -1 ? 'Pending' : `${result.coding}`) : 'N/A'}</TableCell>
+                                            <TableCell className="text-center">{result ? `${result.robotics}` : 'N/A'}</TableCell>
+                                            <TableCell className="text-center font-medium">{result ? (result.coding === -1 ? 'Pending' : `${result.coding}`) : 'N/A'}</TableCell>
+                                            <TableCell className="text-right">
+                                              <Button variant="outline" size="sm" asChild>
+                                                <Link href={`/results/${student.rollNumber}`}>
+                                                  View Marksheet
+                                                  <ExternalLink className="ml-2 h-4 w-4" />
+                                                </Link>
+                                              </Button>
+                                            </TableCell>
                                           </TableRow>
                                         )
                                       })}
