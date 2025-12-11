@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { BookCopy, Users } from "lucide-react";
 import Link from "next/link";
 import { getStoredUsers, type User } from "@/lib/user-store";
-import { getExamForStudent, getResultForStudent, type ExamResult } from "@/lib/exam-store";
+import { getStoredExams, getStoredResults, type ExamResult } from "@/lib/exam-store";
 
 type GroupedStudents = {
   [className: string]: {
@@ -18,6 +18,7 @@ type GroupedStudents = {
 export default function FacultyDashboard() {
   const allUsers = getStoredUsers();
   const totalStudents = allUsers.length;
+  const allResults = getStoredResults();
 
   const groupedStudents = allUsers.reduce((acc, user) => {
     const { class: className, section } = user;
@@ -33,9 +34,13 @@ export default function FacultyDashboard() {
   }, {} as GroupedStudents);
 
   const getStudentResult = (student: User): ExamResult | null => {
-    const exam = getExamForStudent(student.class, student.section);
-    if (exam) {
-      return getResultForStudent(student.rollNumber, exam.selectedSet);
+    const studentResults = allResults[student.rollNumber];
+    if (studentResults) {
+      // Find the first available result for the student, as examId might vary
+      const examIds = Object.keys(studentResults);
+      if (examIds.length > 0) {
+        return studentResults[examIds[0]];
+      }
     }
     return null;
   }
