@@ -43,7 +43,7 @@ export default function ResultPage() {
         
         if (userForMarksheet) {
             const allResults = getStoredResults();
-            const uniqueStudentKeyForResults = `${userForMarksheet.rollNumber}-${userForMarksheet.class}-${userForMarksheet.section}`;
+            const uniqueStudentKeyForResults = `${userForMarksheet.rollNumber.padStart(2, '0')}-${userForMarksheet.class}-${userForMarksheet.section}`;
             
             const studentResults = allResults[uniqueStudentKeyForResults];
             
@@ -136,3 +136,5 @@ export default function ResultPage() {
         </div>
     )
 }
+
+    
